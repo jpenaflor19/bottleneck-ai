@@ -64,9 +64,17 @@ export default function PolymorphicMarketingAI() {
       });
 
       const data = await response.json();
-      setOutput(data.result || 'No output generated.');
+
+      console.log('API RESPONSE:', data);
+
+      if (!response.ok) {
+        setOutput(`Error: ${data.error || 'Failed to generate content.'}`);
+      } else {
+        setOutput(data.result || 'No output generated.');
+      }
     } catch (error) {
-      setOutput('API connection not yet configured. Next step is connecting OpenAI API.');
+      console.error(error);
+      setOutput(`Connection Error: ${error.message}`);
     }
 
     setLoading(false);
