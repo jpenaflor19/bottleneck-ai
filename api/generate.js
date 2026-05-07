@@ -1,6 +1,8 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({
+      error: 'Method not allowed',
+    });
   }
 
   try {
@@ -13,12 +15,12 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-mini',
+        model: 'gpt-3.5-turbo',
         messages: [
           {
             role: 'system',
             content:
-              'You are an AI social media and recruitment marketing assistant for Bottleneck Distant Assistants.',
+              'You are an expert AI marketing assistant for Bottleneck Distant Assistants specializing in recruitment marketing, delegation systems, social media growth, and business branding.',
           },
           {
             role: 'user',
@@ -31,14 +33,22 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    res.status(200).json({
+    console.log('OPENAI RESPONSE:', data);
+
+    if (!response.ok) {
+      return res.status(500).json({
+        error: data.error?.message || 'OpenAI request failed',
+      });
+    }
+
+    return res.status(200).json({
       result: data.choices[0].message.content,
     });
   } catch (error) {
-    console.error(error);
+    console.error('SERVER ERROR:', error);
 
-    res.status(500).json({
-      error: 'OpenAI generation failed.',
+    return res.status(500).json({
+      error: error.message,
     });
   }
 }
