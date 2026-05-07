@@ -1,4 +1,11 @@
-function App() {
+import { useState } from 'react';
+
+export default function PolymorphicMarketingAI() {
+  const [prompt, setPrompt] = useState('');
+  const [output, setOutput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [selectedModule, setSelectedModule] = useState('Copywriter');
+
   const modules = [
     {
       title: 'Content Strategist',
@@ -38,6 +45,33 @@ function App() {
     },
   ];
 
+  const generateContent = async () => {
+    if (!prompt) return;
+
+    setLoading(true);
+    setOutput('Generating AI content...');
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt,
+          module: selectedModule,
+        }),
+      });
+
+      const data = await response.json();
+      setOutput(data.result || 'No output generated.');
+    } catch (error) {
+      setOutput('API connection not yet configured. Next step is connecting OpenAI API.');
+    }
+
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-black text-white p-8">
       <div className="max-w-7xl mx-auto">
@@ -46,9 +80,53 @@ function App() {
             Polymorphic Agentic AI Marketing System
           </h1>
           <p className="text-gray-400 text-lg max-w-3xl mx-auto">
-            An interactive AI powered marketing operations dashboard for recruitment, delegation,
-            branding, and business growth.
+            Interactive AI powered marketing operations dashboard for recruitment,
+            delegation, branding, and business growth.
           </p>
+        </div>
+
+        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-12 shadow-xl">
+          <h2 className="text-3xl font-bold mb-6">AI Content Generator</h2>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block mb-3 text-sm text-gray-400">
+                Select AI Module
+              </label>
+
+              <select
+                value={selectedModule}
+                onChange={(e) => setSelectedModule(e.target.value)}
+                className="w-full bg-black border border-zinc-700 rounded-2xl p-4 text-white"
+              >
+                {modules.map((module, index) => (
+                  <option key={index}>{module.title}</option>
+                ))}
+              </select>
+
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Example: Create a TikTok recruitment caption for Executive Assistants targeting US business owners."
+                className="w-full h-48 mt-6 bg-black border border-zinc-700 rounded-2xl p-4 text-white resize-none"
+              />
+
+              <button
+                onClick={generateContent}
+                className="mt-6 w-full bg-white text-black font-bold py-4 rounded-2xl hover:scale-105 transition-all duration-300"
+              >
+                {loading ? 'Generating...' : 'Generate AI Content'}
+              </button>
+            </div>
+
+            <div className="bg-black border border-zinc-700 rounded-2xl p-6 overflow-auto">
+              <h3 className="text-xl font-semibold mb-4">AI Output</h3>
+
+              <div className="text-gray-300 whitespace-pre-wrap leading-relaxed">
+                {output || 'Generated captions, hashtags, scripts, image ideas, and campaigns will appear here.'}
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -77,96 +155,16 @@ function App() {
                 ))}
               </div>
 
-              <button className="mt-6 w-full bg-white text-black font-semibold py-3 rounded-2xl hover:scale-105 transition-all duration-300">
+              <button
+                onClick={() => setSelectedModule(module.title)}
+                className="mt-6 w-full bg-white text-black font-semibold py-3 rounded-2xl hover:scale-105 transition-all duration-300"
+              >
                 Launch Module
               </button>
             </div>
           ))}
         </div>
-
-        <div className="mt-16 bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-xl">
-          <h2 className="text-3xl font-bold mb-4">AI Workflow Simulation</h2>
-
-          <div className="grid md:grid-cols-5 gap-4 mt-8">
-            {[
-              'Upload Podcast Script',
-              'Generate Multi Platform Content',
-              'Create Graphics Concepts',
-              'Schedule Content',
-              'Analyze Performance',
-            ].map((step, index) => (
-              <div
-                key={index}
-                className="bg-black border border-zinc-700 rounded-2xl p-4 text-center"
-              >
-                <div className="text-3xl font-bold mb-3 text-gray-500">
-                  0{index + 1}
-                </div>
-                <p className="text-sm text-gray-300">{step}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-16 grid lg:grid-cols-2 gap-6">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-            <h2 className="text-3xl font-bold mb-4">Suggested Integrations</h2>
-
-            <div className="space-y-4 mt-6">
-              {[
-                'OpenAI API',
-                'Make.com',
-                'n8n',
-                'Google Sheets',
-                'Meta Scheduler',
-                'LinkedIn API',
-                'TikTok Workflow',
-                'YouTube Automation',
-              ].map((tool, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between bg-black border border-zinc-700 rounded-2xl px-4 py-3"
-                >
-                  <span>{tool}</span>
-                  <span className="text-green-400 text-sm">Ready</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-            <h2 className="text-3xl font-bold mb-4">Business Goals</h2>
-
-            <div className="space-y-4 mt-6">
-              {[
-                'Increase inbound business owner leads',
-                'Improve recruitment authority branding',
-                'Automate repetitive marketing tasks',
-                'Scale Delegation Desk Show visibility',
-                'Build operational thought leadership',
-                'Generate consistent daily content',
-              ].map((goal, index) => (
-                <div
-                  key={index}
-                  className="bg-black border border-zinc-700 rounded-2xl px-4 py-4"
-                >
-                  <div className="flex items-center justify-between">
-                    <span>{goal}</span>
-                    <span className="text-xs text-gray-500">ACTIVE</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-16 text-center">
-          <button className="bg-white text-black px-8 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition-all duration-300 shadow-2xl">
-            Initialize AI Marketing Operations
-          </button>
-        </div>
       </div>
     </div>
   );
 }
-export default App
